@@ -1,0 +1,10 @@
+*.xlg
+*.res
+*.ino
+*.in_
+*.to
+*.t_
+output/
+bin/
+*.prefs
+lib/

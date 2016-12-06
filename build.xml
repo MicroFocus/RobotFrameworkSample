@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="RobotFrameworkSample" default="compile">
+
+	<property name="src" value="src" />
+	<property name="bin" value="build" />
+	<property name="output" value="output" />
+	<property name="lib" value="lib" />
+	<property name="buildlib" value="buildlib" />
+
+	<path id="project.classpath">
+		<fileset dir="${lib}" includes="*.jar" excludes="*source*" />
+		<fileset dir="${buildlib}" includes="*.jar" excludes="*source*" />
+	</path>
+
+	<target name="compile">
+		<delete dir="${output}" />
+		<mkdir dir="${output}" />
+
+		<delete dir="${bin}" />
+		<mkdir dir="${bin}" />
+
+		<componentdef name="ecj" classname="org.eclipse.jdt.core.JDTCompilerAdapter" classpathref="project.classpath" />
+		<javac srcdir="${src}" destdir="${bin}" debug="true" source="1.8" target="1.8" encoding="utf-8" includeantruntime="false">
+			<compilerarg value="-parameters" />
+			<classpath refid="project.classpath" />
+			<ecj />
+		</javac>
+
+		<jar destfile="${output}/tests.jar">
+			<fileset dir="${bin}" includes="**/*.class" />
+			<fileset dir="${src}" includes="**/*" excludes="**/*.java" />
+			<fileset dir="Object Maps" includes="**/*" erroronmissingdir="false" />
+			<fileset dir="Image Assets" includes="**/*" erroronmissingdir="false" />
+			<fileset dir="Verifications" includes="**/" erroronmissingdir="false" />
+			<fileset dir="Keyword Sequences" includes="**/" erroronmissingdir="false" />
+			<fileset dir="Keyword Driven Tests" includes="**/*" erroronmissingdir="false" />
+		</jar>
+
+		<copy todir="${output}" overwrite="true">
+			<fileset dir="${lib}" includes="*.jar" excludes="*source*" />
+			<fileset dir="${buildlib}" includes="*jtf*.jar" excludes="*source*" />
+			<fileset dir="Keyword Driven Tests" includes="*.robot" excludes="*source*" />
+		</copy>
+
+		<delete dir="${bin}" />
+	</target>
+
+	<target name="build.keyword.library" depends="compile">
+		<java classname="com.borland.silk.keyworddriven.library.docbuilder.DocBuilder" fork="true">
+			<classpath refid="project.classpath" />
+
+			<arg value="RobotFrameworkSample" />
+			<arg value="Silk4J" />
+			<arg value="${output}" />
+			<arg value="${output}/library.zip" />
+		</java>
+	</target>
+
+	<target name="run.robot" depends="compile">
+		<java classname="org.robotframework.RobotFramework" dir="${output}" fork="true">
+			<classpath>
+				<fileset dir="${output}">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+
+			<arg value="tests.robot" />
+		</java>
+	</target>
+
+</project>
